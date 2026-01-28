@@ -32,7 +32,6 @@
         .status-cloud { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
         .status-local { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
         
-        /* 錯誤提示框 */
         #error-toast { 
             position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
             z-index: 100; display: none; animation: slideUp 0.3s ease;
@@ -72,7 +71,7 @@
             </h3>
             <div id="ideas-list" class="space-y-3 mb-6"></div>
             <div class="flex flex-col gap-2 pt-4 border-t border-slate-100">
-                <input type="text" id="idea-title" placeholder="標題 (如：這家司康看起來很讚)" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
+                <input type="text" id="idea-title" placeholder="標題 (如：想去這家古著店)" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
                 <div class="flex gap-2">
                     <input type="text" id="idea-url" placeholder="貼上網址 https://..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
                     <button id="add-btn" onclick="window.handleAddIdea()" class="bg-blue-700 text-white px-5 rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50">
@@ -83,7 +82,6 @@
         </div>
     </section>
 
-    <!-- 訊息提示 -->
     <div id="error-toast" class="bg-red-600 text-white px-6 py-3 rounded-2xl shadow-2xl text-sm font-bold"></div>
 
     <script type="module">
@@ -91,7 +89,6 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase 配置資訊 (已根據截圖填寫)
         const firebaseConfig = {
             apiKey: "AIzaSyATImueC5mwGfTjCh1Bfoi2xA56FKhwE6E",
             authDomain: "londontrip-eb6ad.firebaseapp.com",
@@ -103,14 +100,45 @@
         };
 
         const daysData = [
-            { day: 1, title: "抵達與城市適應", items: [{ time: "19:00", title: "Heathrow Airport", desc: "地鐵直達 King's Cross。", icon: "plane" }, { time: "21:30", title: "Dishoom King's Cross", desc: "必點：招牌黑扁豆、炸秋葵、羊肉。", icon: "utensils" }]},
-            { day: 2, title: "格林威治櫻花大道", items: [{ time: "08:30", title: "Caravan King's Cross", desc: "必點：Baked Eggs (烤蛋)。", icon: "coffee" }, { time: "10:30", title: "Borough Market", desc: "必吃：甜甜圈、烤起司三明治。", icon: "shopping-bag" }, { time: "14:30", title: "Greenwich Park", desc: "櫻花隧道必拍機位。", icon: "flower" }, { time: "18:00", title: "The London Eye", desc: "俯瞰倫敦夜景。", icon: "eye" }]},
-            { day: 3, title: "劍橋學術之旅", items: [{ time: "09:00", title: "King's Cross Station", desc: "火車前往劍橋。", icon: "train" }, { time: "11:00", title: "River Cam Punting", desc: "康河撐篙。", icon: "waves" }, { time: "16:00", title: "Fitzbillies", desc: "必吃：百年肉桂捲。", icon: "landmark" }]},
-            { day: 4, title: "邱園與諾丁山", items: [{ time: "09:30", title: "Kew Gardens", desc: "溫帶植物室、Cherry Walk 櫻花步道。", icon: "flower-2" }, { time: "15:00", title: "Notting Hill", desc: "漫步波多貝羅市集。", icon: "camera" }]},
-            { day: 5, title: "穹頂、歷史與博物館", items: [{ time: "10:00", title: "St Paul's Cathedral", desc: "聖保羅大教堂櫻花與圓頂。", icon: "church" }, { time: "14:00", title: "British Museum", desc: "大英博物館。", icon: "milestone" }]},
-            { day: 6, title: "巨石陣神祕能量", items: [{ time: "14:00", title: "Stonehenge", desc: "史前巨石陣的神祕氛圍。", icon: "castle" }]},
-            { day: 7, title: "皇家公園告別巡禮", items: [{ time: "10:00", title: "The Regent's Park", desc: "最後的粉紅告別。", icon: "wind" }, { time: "14:00", title: "Regent Street", desc: "Liberty 百貨、F&M 買茶葉。", icon: "shopping-bag" }]},
-            { day: 8, title: "知性終章與歸途", items: [{ time: "10:00", title: "British Library", desc: "參觀大憲章與達文西手稿。", icon: "book-open" }, { time: "14:00", title: "Heathrow Airport", desc: "帶著回憶歸途。", icon: "navigation" }]}
+            { day: 1, title: "抵達與城市適應", items: [
+                { time: "19:00", title: "Heathrow Airport", desc: "抵達希斯洛機場。搭乘地鐵 Piccadilly Line 或 Elizabeth Line 前往 King's Cross 車站。辦理飯店 Check-in 後放行李。", icon: "plane" },
+                { time: "21:30", title: "Dishoom King's Cross", desc: "晚餐時間。這家排隊名店晚間人潮較少，必點菜色：招牌黑扁豆 (Black Daal)、炸秋葵 (Okra Fries) 與羊肉 (Lamb Raan)。", icon: "utensils" }
+            ]},
+            { day: 2, title: "格林威治櫻花大道", items: [
+                { time: "08:30", title: "Caravan King's Cross", desc: "工業風早餐。推薦必點：Baked Eggs (烤蛋)，配上一杯現烘咖啡。就在飯店步行距離內。", icon: "coffee" },
+                { time: "10:30", title: "Borough Market", desc: "倫敦最大美食市集。推薦：Bread Ahead 的焦糖甜甜圈、Kappacasein 的招牌烤起司三明治。", icon: "shopping-bag" },
+                { time: "14:30", title: "Greenwich Park", desc: "登上天文台俯瞰倫敦。接著前往 Ranger's House 前方的「櫻花隧道」拍攝春季限定美景。", icon: "flower" },
+                { time: "18:00", title: "The London Eye", desc: "搭乘倫敦之眼。建議提前預約日落前時段，可以同時看見夕陽與泰晤士河夜景。", icon: "eye" }
+            ]},
+            { day: 3, title: "劍橋學術之旅", items: [
+                { time: "09:00", title: "King's Cross Station", desc: "搭乘火車前往劍橋 (Cambridge)。車程約 50 分鐘，建議購買 Off-peak Return 車票節省開支。", icon: "train" },
+                { time: "11:00", title: "River Cam Punting", desc: "體驗康河撐篙。沿途欣賞數學橋、國王學院與聖約翰學院後花園的絕美景致。", icon: "waves" },
+                { time: "16:00", title: "Fitzbillies", desc: "創立於 1921 年的百年甜點店。必吃：口感極度紮實的 Chelsea Buns (招牌肉桂捲)。", icon: "landmark" }
+            ]},
+            { day: 4, title: "邱園與諾丁山", items: [
+                { time: "09:30", title: "Kew Gardens", desc: "世界文化遺產。參觀巨大的溫帶植物室、樹冠走廊，以及著名的 Cherry Walk 櫻花步道。", icon: "flower-2" },
+                { time: "15:00", title: "Notting Hill", desc: "漫步波多貝羅市集 (Portobello Market)。尋找彩色房屋與《新娘百分百》電影中的藍色書店。", icon: "camera" },
+                { time: "17:00", title: "Notting Hill Afternoon Tea", desc: "在諾丁山找一家英式司康店休息。推薦尋找木蘭花盛開的小巷拍攝春季人像照片。", icon: "utensils" }
+            ]},
+            { day: 5, title: "穹頂、歷史與博物館", items: [
+                { time: "10:00", title: "St Paul's Cathedral", desc: "聖保羅大教堂。欣賞南側花園櫻花與圓頂的構圖。建議購票登頂，可俯瞰倫敦市中心全景。", icon: "church" },
+                { time: "14:00", title: "British Museum", desc: "館藏極豐，必看項目：埃及館羅塞塔石碑、帕德嫩神廟雕塑。建議預留至少 3 小時觀覽時間。", icon: "milestone" },
+                { time: "17:00", title: "Covent Garden", desc: "柯芬園逛街。這裡有許多文創小店與街頭藝人表演，也是購買倫敦紀念品的好地點。", icon: "shopping-bag" }
+            ]},
+            { day: 6, title: "巨石陣神祕能量", items: [
+                { time: "09:00", title: "Waterloo Station", desc: "搭乘火車前往 Salisbury。這是探索英國史前遺跡最經典的門戶車站。", icon: "bus" },
+                { time: "14:00", title: "Stonehenge", desc: "親眼見證人類文明奇蹟。感受四千年前巨大石塊堆疊出的神祕祭壇氛圍。", icon: "castle" },
+                { time: "17:00", title: "Salisbury Cathedral", desc: "回程前參觀這座擁有英國最高尖塔的教堂，並欣賞珍貴的《大憲章》原件。", icon: "church" }
+            ]},
+            { day: 7, title: "皇家公園告別巡禮", items: [
+                { time: "10:00", title: "The Regent's Park", desc: "漫步 Chester Road。這裡是全倫敦最壯觀的櫻花步道之一，也是旅途最後的驚喜。", icon: "wind" },
+                { time: "14:00", title: "Liberty & Regent Street", desc: "拜訪都鐸式建築的 Liberty 百貨。前往攝政街與 Fortnum & Mason 購買頂級茶葉作為伴手禮。", icon: "shopping-bag" },
+                { time: "19:00", title: "The West End", desc: "最後一晚。建議看一場經典的倫敦音樂劇，如《歌劇魅影》或《悲慘世界》。", icon: "star" }
+            ]},
+            { day: 8, title: "知性終章與歸途", items: [
+                { time: "10:00", title: "British Library", desc: "就在飯店與車站隔壁。參觀珍貴的大憲章、達文西手稿以及披頭四的歌詞原稿。", icon: "book-open" },
+                { time: "14:00", title: "Heathrow Airport", desc: "攜帶著滿滿的倫敦春季回憶與相片，搭機返家。", icon: "navigation" }
+            ]}
         ];
 
         const bookingItems = [
@@ -118,7 +146,9 @@
             { id: "london-eye", day: 2, label: "倫敦眼門票" },
             { id: "cambridge-train", day: 3, label: "劍橋火車票" },
             { id: "kew-gardens", day: 4, label: "邱園門票" },
-            { id: "stonehenge", day: 6, label: "巨石陣套票" }
+            { id: "stonehenge", day: 6, label: "巨石陣套票" },
+            { id: "st-pauls", day: 5, label: "聖保羅登頂預約" },
+            { id: "musical", day: 7, label: "音樂劇門票" }
         ];
 
         let db = null, currentDay = 1, unsubIdeas, unsubBookings, appId = "londontrip-eb6ad";
@@ -147,8 +177,8 @@
                     <div class="flex gap-4 mb-8">
                         <div class="w-10 h-10 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-blue-800 flex-shrink-0"><i data-lucide="${item.icon}" class="w-5 h-5"></i></div>
                         <div class="flex-1">
-                            <div class="flex justify-between items-start"><span class="text-[10px] font-black text-blue-700 uppercase">${item.time}</span></div>
-                            <h4 class="text-lg font-bold mt-1 text-slate-900">${item.title}</h4><p class="text-sm text-slate-600 mt-1">${item.desc}</p>
+                            <div class="flex justify-between items-start"><span class="text-[10px] font-black text-blue-700 uppercase">${item.time}</span><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.title + ' London')}" target="_blank" class="flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50/80 px-2 py-1 rounded-lg border border-blue-200 shadow-sm backdrop-blur-sm"><i data-lucide="map" class="w-3 h-3"></i> 地圖</a></div>
+                            <h4 class="text-lg font-bold mt-1 text-slate-900">${item.title}</h4><p class="text-sm text-slate-600 mt-1 leading-relaxed">${item.desc}</p>
                         </div>
                     </div>`).join('');
                 section.innerHTML = `<h2 class="text-2xl font-bold text-blue-900 font-serif mb-4 px-2">Day ${day.day}: ${day.title}</h2><div class="content-card p-8 mb-6">${itemsHtml}</div>`;
@@ -215,8 +245,7 @@
                 });
                 lucide.createIcons();
             }, (err) => {
-                console.error("Firestore Error:", err);
-                if (err.code === 'permission-denied') showError("資料庫權限不足，請檢查 Firebase Rules。");
+                if (err.code === 'permission-denied') showError("資料庫權限不足。");
             });
 
             if (unsubBookings) unsubBookings();
@@ -251,7 +280,7 @@
                     const all = JSON.parse(localStorage.getItem('ideas') || '{}'); all[currentDay] = all[currentDay] || []; all[currentDay].push({ title: t.value, url: u.value }); localStorage.setItem('ideas', JSON.stringify(all)); renderLocal(currentDay);
                 }
                 t.value = ''; u.value = '';
-            } catch (e) { showError("儲存失敗，請檢查權限與匿名登入開關。"); }
+            } catch (e) { showError("儲存失敗。"); }
             finally { btn.disabled = false; }
         };
 
