@@ -9,366 +9,203 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap');
         
-        :root {
-            --accent-blue: #1e40af;
-            --sakura-pink: #f472b6;
-            --text-main: #0f172a;
-        }
+        :root { --accent-blue: #1e40af; --text-main: #0f172a; }
 
         body {
-            font-family: 'Inter', 'Noto Serif TC', serif;
-            color: var(--text-main);
-            -webkit-tap-highlight-color: transparent;
-            overflow-x: hidden;
-            min-height: 100vh;
+            font-family: 'Inter', 'Noto Serif TC', serif; color: var(--text-main);
             background-image: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), 
                               url('https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&q=80&w=2000');
-            background-attachment: fixed;
-            background-size: cover;
-            background-position: center;
+            background-attachment: fixed; background-size: cover; background-position: center;
         }
 
-        .glass {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .nav-scroll {
-            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
-            scrollbar-width: none; -ms-overflow-style: none; gap: 10px; padding: 4px;
-        }
+        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .nav-scroll { display: flex; overflow-x: auto; gap: 10px; padding: 4px; scrollbar-width: none; }
         .nav-scroll::-webkit-scrollbar { display: none; }
-        .nav-item { scroll-snap-align: center; flex: 0 0 auto; }
-
-        .day-content { display: none; animation: fadeIn 0.4s ease-out forwards; }
-        .day-content.active { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .nav-active {
-            background: var(--accent-blue) !important;
-            color: white !important;
-            box-shadow: 0 8px 20px rgba(30, 64, 175, 0.25);
-            border-color: var(--accent-blue) !important;
-        }
-
-        .timeline-dot::after {
-            content: ''; position: absolute; left: 50%; top: 2.5rem;
-            width: 2px; height: calc(100% - 1.5rem);
-            background: rgba(30, 64, 175, 0.15); transform: translateX(-50%); z-index: 0;
-        }
-        .last-item .timeline-dot::after { display: none; }
-
-        .content-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 2.5rem;
-            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .check-card.checked {
-            opacity: 0.7;
-            background-color: rgba(241, 245, 249, 0.8);
-            border-color: transparent;
-        }
-        .check-card.checked label {
-            text-decoration: line-through;
-            color: #64748b;
-        }
+        .day-content { display: none; }
+        .day-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-active { background: var(--accent-blue) !important; color: white !important; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2); }
+        .content-card { background: rgba(255, 255, 255, 0.95); border-radius: 2rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); }
+        .check-card.checked { opacity: 0.6; text-decoration: line-through; }
     </style>
 </head>
-<body class="pb-12 text-slate-900">
+<body class="pb-24">
 
-    <header class="pt-10 pb-4 px-6 text-center">
-        <div class="max-w-xl mx-auto">
-            <div class="inline-block px-4 py-1 bg-blue-100/80 backdrop-blur-sm rounded-full mb-2">
-                <p class="text-[10px] font-black tracking-[0.3em] text-blue-700 uppercase">2025 Spring Tour</p>
-            </div>
-            <h1 class="text-4xl font-bold text-blue-900 mt-1 font-serif drop-shadow-sm">倫敦行</h1>
-            <div class="mt-4 flex justify-center gap-4">
-                <span class="text-xs font-bold text-blue-800/70 flex items-center gap-1 bg-white/60 px-2 py-1 rounded-lg backdrop-blur-sm shadow-sm"><i data-lucide="map-pin" class="w-3 h-3 text-blue-600"></i> King's Cross</span>
-                <span class="text-xs font-bold text-blue-800/70 flex items-center gap-1 bg-white/60 px-2 py-1 rounded-lg backdrop-blur-sm shadow-sm"><i data-lucide="calendar" class="w-3 h-3 text-blue-600"></i> 03.28 - 04.04</span>
-            </div>
-        </div>
+    <header class="pt-12 pb-4 px-6 text-center">
+        <p class="text-[10px] font-black tracking-[0.3em] text-blue-700 uppercase">2025 Spring Tour</p>
+        <h1 class="text-4xl font-bold text-blue-900 mt-2 font-serif">倫敦行</h1>
     </header>
 
-    <nav class="sticky top-0 z-50 py-4 glass shadow-md px-4 mt-6">
-        <div class="max-w-xl mx-auto">
-            <div id="nav-container" class="nav-scroll"></div>
-        </div>
+    <nav class="sticky top-0 z-50 py-4 glass shadow-sm px-4 mt-6">
+        <div class="max-w-xl mx-auto nav-scroll" id="nav-container"></div>
     </nav>
 
     <main class="max-w-xl mx-auto p-5" id="itinerary-content"></main>
 
-    <div class="fixed bottom-6 right-6 z-40">
-        <button onclick="window.scrollToChecklist()" class="w-14 h-14 bg-blue-800 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
-            <i data-lucide="list-checks"></i>
-        </button>
-    </div>
-
-    <section id="checklist-section" class="max-w-xl mx-auto p-5 pb-24 space-y-6">
-        <div class="content-card p-8 min-h-[100px]">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-blue-900 flex items-center gap-2">
-                    <i data-lucide="calendar-check" class="text-blue-600 w-5 h-5"></i> 本日預約
-                </h3>
-                <div class="text-xs font-bold bg-blue-100 px-3 py-1 rounded-full text-blue-700 border border-blue-200" id="progress-text">0/0</div>
-            </div>
+    <section class="max-w-xl mx-auto p-5 space-y-6">
+        <div class="content-card p-8">
+            <h3 class="text-lg font-bold text-blue-900 flex items-center gap-2 mb-6">
+                <i data-lucide="calendar-check" class="text-blue-600 w-5 h-5"></i> 本日預約 <span id="progress-text" class="ml-auto text-xs bg-blue-100 px-2 py-1 rounded text-blue-700">0/0</span>
+            </h3>
             <div id="checklist-items" class="space-y-3"></div>
-            <div id="no-bookings" class="hidden py-4 text-center text-slate-400 italic text-sm">今日無預約項目</div>
         </div>
 
         <div class="content-card p-8">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-blue-900 flex items-center gap-2">
-                    <i data-lucide="lightbulb" class="text-amber-500 w-5 h-5"></i> 團員分享 Idea
-                </h3>
-            </div>
+            <h3 class="text-lg font-bold text-blue-900 flex items-center gap-2 mb-6">
+                <i data-lucide="lightbulb" class="text-amber-500 w-5 h-5"></i> 團員分享 Idea
+            </h3>
             <div id="ideas-list" class="space-y-3 mb-6"></div>
-            <div class="space-y-3 pt-6 border-t border-slate-100">
-                <input type="text" id="idea-title" placeholder="標題 (如：想吃這家司康)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-all">
+            <div class="flex flex-col gap-2 pt-4 border-t border-slate-100">
+                <input type="text" id="idea-title" placeholder="標題 (如：這家司康看起來很讚)" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
                 <div class="flex gap-2">
-                    <input type="text" id="idea-url" placeholder="連結 (https://...)" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-all">
-                    <button onclick="window.handleAddIdea()" class="bg-blue-700 hover:bg-blue-600 text-white px-5 rounded-xl transition-all flex items-center justify-center shadow-lg">
-                        <i data-lucide="plus" class="w-5 h-5"></i>
-                    </button>
+                    <input type="text" id="idea-url" placeholder="貼上網址 https://..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
+                    <button onclick="window.handleAddIdea()" class="bg-blue-700 text-white px-5 rounded-xl"><i data-lucide="plus"></i></button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Firebase SDK (含初始化邏輯) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 行程資料 (這部分是靜態的，應先渲染)
+        // 已根據截圖填寫正確資訊
+        const firebaseConfig = {
+            apiKey: "AIzaSyATImueC5mwGfTjCh1Bfoi2xA56FKhwE6E",
+            authDomain: "londontrip-eb6ad.firebaseapp.com",
+            projectId: "londontrip-eb6ad",
+            storageBucket: "londontrip-eb6ad.firebasestorage.app",
+            messagingSenderId: "185447395076",
+            appId: "1:185447395076:web:c878b2dcbf3eb08df36a51"
+        };
+
         const daysData = [
-            { day: 1, title: "抵達與城市適應", tag: "Arrival", items: [
-                { time: "19:00", title: "Heathrow Airport", desc: "搭地鐵 Piccadilly Line 直達 King's Cross。", icon: "plane" },
-                { time: "21:30", title: "Dishoom King's Cross", desc: "必點菜色：Black Daal (招牌黑扁豆)、Okra Fries (炸秋葵)、Lamb Raan (羊肉)。", icon: "utensils" }
-            ]},
-            { day: 2, title: "格林威治櫻花大道", tag: "Sakura", items: [
-                { time: "08:30", title: "Caravan King's Cross", desc: "必點：Baked Eggs (烤蛋)。這家咖啡評價極高。", icon: "coffee" },
-                { time: "10:30", title: "Borough Market", desc: "必吃：Bread Ahead 甜甜圈、Kappacasein 烤起司三明治。", icon: "shopping-bag" },
-                { time: "14:30", title: "Greenwich Park", desc: "Ranger's House 前方的櫻花隧道是必拍機位。", icon: "flower" },
-                { time: "18:00", title: "The London Eye", desc: "俯瞰倫敦夜景。建議日落前一小時進場。", icon: "eye" }
-            ]},
-            { day: 3, title: "劍橋學學之旅", tag: "Cambridge", items: [
-                { time: "09:00", title: "King's Cross Station", desc: "火車前往劍橋。預購 Off-peak Return 可省預算。", icon: "train" },
-                { time: "11:00", title: "River Cam Punting", desc: "康河撐篙。建議聽導覽講徐志摩與校園故事。", icon: "waves" },
-                { time: "16:00", title: "Fitzbillies", desc: "必吃：百年傳承的 Chelsea Buns (肉桂捲)。", icon: "landmark" }
-            ]},
-            { day: 4, title: "邱園與諾丁山", tag: "Nature", items: [
-                { time: "09:30", title: "Kew Gardens", desc: "必看：溫帶植物室、Cherry Walk 櫻花步道。", icon: "flower-2" },
-                { time: "15:00", title: "Notting Hill", desc: "波多貝羅市集。推薦去找《新娘百分百》的藍色書店。", icon: "camera" }
-            ]},
-            { day: 5, title: "穹頂、歷史與博物館", tag: "Museum", items: [
-                { time: "10:00", title: "St Paul's Cathedral", desc: "南側花園櫻花與圓頂。登頂風景極佳。", icon: "church" },
-                { time: "14:00", title: "British Museum", desc: "必看：羅塞塔石碑、帕德嫩神廟雕塑。", icon: "milestone" }
-            ]},
-            { day: 6, title: "巨石陣神祕能量", tag: "Trip", items: [
-                { time: "09:00", title: "Waterloo Station", desc: "前往 Salisbury。推薦在車站買 Pret 的三明治。", icon: "bus" },
-                { time: "14:00", title: "Stonehenge", desc: "感受史前巨石陣的神祕氛圍。", icon: "castle" }
-            ]},
-            { day: 7, title: "皇家公園告別巡禮", tag: "Final", items: [
-                { time: "10:00", title: "The Regent's Park", desc: "Chester Road 的櫻花大道。最後的粉紅告別。", icon: "wind" },
-                { time: "14:00", title: "Regent Street", desc: "必逛：Liberty 百貨、F&M 買頂級伯爵茶。", icon: "shopping-bag" }
-            ]},
-            { day: 8, title: "知性終章與歸途", tag: "Home", items: [
-                { time: "10:00", title: "British Library", desc: "就在飯店隔壁。參觀大憲章與達文西手稿。", icon: "book-open" },
-                { time: "14:00", title: "Heathrow Airport", desc: "帶著滿滿的回憶踏上歸途。", icon: "navigation" }
-            ]}
+            { day: 1, title: "抵達與城市適應", items: [{ time: "19:00", title: "Heathrow Airport", desc: "搭地鐵 Piccadilly Line 直達 King's Cross。", icon: "plane" }, { time: "21:30", title: "Dishoom King's Cross", desc: "必點：招牌黑扁豆、炸秋葵、羊肉。", icon: "utensils" }]},
+            { day: 2, title: "格林威治櫻花大道", items: [{ time: "08:30", title: "Caravan King's Cross", desc: "必點：Baked Eggs (烤蛋)。環境極佳。", icon: "coffee" }, { time: "10:30", title: "Borough Market", desc: "必吃：甜甜圈、烤起司三明治。", icon: "shopping-bag" }, { time: "14:30", title: "Greenwich Park", desc: "櫻花隧道必拍機位。", icon: "flower" }]},
+            { day: 3, title: "劍橋學術之旅", items: [{ time: "09:00", title: "King's Cross Station", desc: "前往劍橋。預購 Off-peak Return。", icon: "train" }, { time: "11:00", title: "River Cam Punting", desc: "康河撐篙。", icon: "waves" }, { time: "16:00", title: "Fitzbillies", desc: "必吃：百年肉桂捲。", icon: "landmark" }]},
+            { day: 4, title: "邱園與諾丁山", items: [{ time: "09:30", title: "Kew Gardens", desc: "溫帶植物室、Cherry Walk 櫻花步道。", icon: "flower-2" }, { time: "15:00", title: "Notting Hill", desc: "漫步波多貝羅市集。", icon: "camera" }]},
+            { day: 5, title: "穹頂、歷史與博物館", items: [{ time: "10:00", title: "St Paul's Cathedral", desc: "聖保羅大教堂櫻花與圓頂。", icon: "church" }, { time: "14:00", title: "British Museum", desc: "埃及館、羅塞塔石碑。", icon: "milestone" }]},
+            { day: 6, title: "巨石陣神祕能量", items: [{ time: "14:00", title: "Stonehenge", desc: "史前巨石陣的神祕氛圍。", icon: "castle" }]},
+            { day: 7, title: "皇家公園告別巡禮", items: [{ time: "10:00", title: "The Regent's Park", desc: "最後的粉紅告別。", icon: "wind" }, { time: "14:00", title: "Regent Street", desc: "Liberty 百貨、F&M 買茶葉。", icon: "shopping-bag" }]},
+            { day: 8, title: "知性終章與歸途", items: [{ time: "10:00", title: "British Library", desc: "大憲章與達文西手稿。", icon: "book-open" }, { time: "14:00", title: "Heathrow Airport", desc: "帶著回憶歸途。", icon: "navigation" }]}
         ];
 
         const bookingItems = [
-            { id: "dishoom", day: 1, label: "Dishoom 餐廳預約", note: "建議提前 1 週" },
-            { id: "london-eye", day: 2, label: "倫敦眼門票", note: "預約日落時段" },
-            { id: "cambridge-train", day: 3, label: "劍橋火車票", note: "預購 Off-peak Return" },
-            { id: "punting", day: 3, label: "康河撐篙 (Punting)", note: "線上預約較優" },
-            { id: "kew-gardens", day: 4, label: "邱園門票 (Kew Gardens)", note: "早鳥優惠票" },
-            { id: "st-pauls", day: 5, label: "聖保羅大教堂門票", note: "登頂需預約" },
-            { id: "british-museum", day: 5, label: "大英博物館免費預約", note: "預留 3 小時" },
-            { id: "stonehenge", day: 6, label: "巨石陣套票 (含巴士)", note: "確認 Waterloo 車次" }
+            { id: "dishoom", day: 1, label: "Dishoom 餐廳預約" },
+            { id: "london-eye", day: 2, label: "倫敦眼門票" },
+            { id: "cambridge-train", day: 3, label: "劍橋火車票" },
+            { id: "kew-gardens", day: 4, label: "邱園門票" },
+            { id: "stonehenge", day: 6, label: "巨石陣套票" }
         ];
 
-        let db, appId, currentActiveDay = 1, unsubIdeas, unsubBookings;
+        let db, currentDay = 1, unsubIdeas, unsubBookings, appId = "londontrip-eb6ad";
 
-        // 啟動 UI 渲染 (Rule: UI 應該優先顯示)
         function renderUI() {
             const nav = document.getElementById('nav-container');
             const content = document.getElementById('itinerary-content');
-            nav.innerHTML = '';
-            content.innerHTML = '';
-
             daysData.forEach((day, idx) => {
                 const btn = document.createElement('button');
-                btn.id = `btn-${day.day}`;
-                btn.className = `nav-item px-5 py-2.5 rounded-full text-sm font-bold bg-white/70 text-slate-600 border border-slate-200 backdrop-blur-md transition-all shadow-sm`;
-                btn.innerText = `D${day.day}`;
+                btn.className = `nav-item px-5 py-2 rounded-full text-sm font-bold bg-white/70 border border-slate-200 transition-all flex-shrink-0`;
+                btn.id = `btn-${day.day}`; btn.innerText = `D${day.day}`;
                 btn.onclick = () => window.switchDay(day.day);
                 nav.appendChild(btn);
 
                 const section = document.createElement('section');
-                section.id = `day-${day.day}`;
-                section.className = `day-content ${idx === 0 ? 'active' : ''}`;
-                
-                const itemsHtml = day.items.map((item, i) => {
-                    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.title + (item.title.includes('Airport') ? '' : ' London'))}`;
-                    return `
-                    <div class="flex gap-4 mb-10 ${i === day.items.length - 1 ? 'last-item' : ''}">
-                        <div class="relative timeline-dot flex-shrink-0 z-10">
-                            <div class="w-10 h-10 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center text-blue-800">
-                                <i data-lucide="${item.icon}" class="w-5 h-5"></i>
-                            </div>
+                section.id = `day-${day.day}`; section.className = `day-content ${idx === 0 ? 'active' : ''}`;
+                const itemsHtml = day.items.map(item => `
+                    <div class="flex gap-4 mb-8">
+                        <div class="w-10 h-10 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-blue-800 flex-shrink-0"><i data-lucide="${item.icon}" class="w-5 h-5"></i></div>
+                        <div class="flex-1 text-slate-900">
+                            <div class="flex justify-between items-start"><span class="text-[10px] font-black text-blue-700 uppercase">${item.time}</span></div>
+                            <h4 class="text-lg font-bold mt-1">${item.title}</h4><p class="text-sm text-slate-600 mt-1">${item.desc}</p>
                         </div>
-                        <div class="pt-1 flex-1">
-                            <div class="flex justify-between items-start">
-                                <span class="text-[10px] font-black tracking-widest text-blue-700 uppercase">${item.time}</span>
-                                <a href="${mapsUrl}" target="_blank" class="flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50/80 px-2 py-1 rounded-lg border border-blue-200 hover:bg-blue-100 transition-all shadow-sm backdrop-blur-sm">
-                                    <i data-lucide="map" class="w-3 h-3"></i> 地圖
-                                </a>
-                            </div>
-                            <h4 class="text-lg font-bold text-blue-950 leading-tight mt-1">${item.title}</h4>
-                            <p class="text-sm text-slate-700 mt-1 leading-relaxed">${item.desc}</p>
-                        </div>
-                    </div>
-                `}).join('');
-
-                section.innerHTML = `
-                    <div class="mb-4 flex items-center justify-between px-2">
-                        <h2 class="text-2xl font-bold text-blue-900 font-serif tracking-tight drop-shadow-sm">Day ${day.day}: ${day.title}</h2>
-                        <span class="text-[10px] font-bold px-3 py-1 bg-blue-600 text-white rounded-lg shadow-md">${day.tag}</span>
-                    </div>
-                    <div class="content-card p-8 mb-6">
-                        ${itemsHtml}
-                    </div>
-                `;
+                    </div>`).join('');
+                section.innerHTML = `<h2 class="text-2xl font-bold text-blue-900 font-serif mb-4 px-2">Day ${day.day}: ${day.title}</h2><div class="content-card p-8 mb-6">${itemsHtml}</div>`;
                 content.appendChild(section);
             });
             window.switchDay(1);
             lucide.createIcons();
         }
 
-        // Firebase 初始化與登入
-        async function startFirebase() {
-            try {
-                // 如果在 GitHub Pages 上 __firebase_config 會是 undefined，這裡會噴錯
-                // 使用者需要將下方的內容替換為 Firebase 控制台提供的實際配置
-                const config = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-                    apiKey: "", // 這裡放妳的 API Key
-                    authDomain: "",
-                    projectId: "",
-                    storageBucket: "",
-                    messagingSenderId: "",
-                    appId: ""
-                };
-
-                const firebaseApp = initializeApp(config);
-                const auth = getAuth(firebaseApp);
-                db = getFirestore(firebaseApp);
-                appId = typeof __app_id !== 'undefined' ? __app_id : 'london-trip-2025';
-
-                await signInAnonymously(auth);
-                onAuthStateChanged(auth, (user) => {
-                    if (user) syncCloudData(currentActiveDay);
-                });
-            } catch (e) {
-                console.warn("Cloud Sync Offline: Firebase Config Missing.", e);
-            }
-        }
-
-        async function syncCloudData(day) {
-            if (!db) return;
-            if (unsubIdeas) unsubIdeas();
-            if (unsubBookings) unsubBookings();
-
-            const ideasCol = collection(db, 'artifacts', appId, 'public', 'data', 'ideas');
-            unsubIdeas = onSnapshot(ideasCol, (snapshot) => {
-                const container = document.getElementById('ideas-list');
-                if (!container) return;
-                const dayIdeas = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(idea => idea.day === day);
-                container.innerHTML = dayIdeas.length === 0 ? '<div class="py-8 text-center bg-slate-50/50 backdrop-blur-sm rounded-2xl border border-dashed border-slate-200 text-slate-400 text-sm italic">尚無分享點子</div>' : '';
-                dayIdeas.forEach(idea => {
-                    const item = document.createElement('div');
-                    item.className = "flex items-center justify-between p-4 bg-blue-50/80 rounded-2xl border border-blue-100 shadow-sm backdrop-blur-sm";
-                    item.innerHTML = `
-                        <div class="flex-1 min-w-0 pr-4">
-                            <p class="text-sm font-bold text-blue-900 truncate">${idea.title}</p>
-                            <a href="${idea.url}" target="_blank" class="text-xs text-blue-600 hover:underline truncate block mt-1 font-medium">${idea.url}</a>
-                        </div>
-                        <button onclick="window.handleDeleteIdea('${idea.id}')" class="text-slate-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
-                    container.appendChild(item);
-                });
-                lucide.createIcons();
-            });
-
-            const bookingsCol = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
-            unsubBookings = onSnapshot(bookingsCol, (snapshot) => {
-                const container = document.getElementById('checklist-items');
-                if (!container) return;
-                const cloudData = {};
-                snapshot.docs.forEach(d => cloudData[d.id] = d.data().isDone);
-                const filtered = bookingItems.filter(item => item.day === day);
-                container.innerHTML = '';
-                let doneCount = 0;
-                filtered.forEach(item => {
-                    const isDone = cloudData[item.id] || false;
-                    if (isDone) doneCount++;
-                    const card = document.createElement('div');
-                    card.className = `check-card flex items-center gap-3 p-4 bg-white/80 border border-slate-100 rounded-2xl transition-all cursor-pointer shadow-sm ${isDone ? 'checked' : ''}`;
-                    card.onclick = () => window.handleToggleBooking(item.id, !isDone);
-                    card.innerHTML = `<i data-lucide="${isDone ? 'check-circle' : 'circle'}" class="w-5 h-5 ${isDone ? 'text-blue-600' : 'text-slate-300'}"></i> <div class="flex-1"><p class="text-sm font-bold text-blue-900">${item.label}</p><p class="text-[10px] text-slate-500">${item.note}</p></div>`;
-                    container.appendChild(card);
-                });
-                document.getElementById('progress-text').innerText = `${doneCount}/${filtered.length}`;
-                lucide.createIcons();
-            });
-        }
-
         window.switchDay = function(n) {
-            currentActiveDay = n;
+            currentDay = n;
             document.querySelectorAll('.day-content').forEach(d => d.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('nav-active'));
-            const target = document.getElementById(`day-${n}`);
-            if (target) target.classList.add('active');
-            const btn = document.getElementById(`btn-${n}`);
-            if (btn) { btn.classList.add('nav-active'); btn.scrollIntoView({ behavior: 'smooth', inline: 'center' }); }
-            syncCloudData(n);
-            window.scrollTo({ top: 100, behavior: 'smooth' });
+            document.getElementById(`day-${n}`).classList.add('active');
+            document.getElementById(`btn-${n}`).classList.add('nav-active');
+            if (db) syncData(n); else renderLocal(n);
+        };
+
+        function renderLocal(day) {
+            const container = document.getElementById('ideas-list');
+            const ideas = JSON.parse(localStorage.getItem('ideas') || '{}')[day] || [];
+            container.innerHTML = ideas.length ? '' : '<p class="text-center text-slate-400 text-sm italic py-4">尚無分享點子</p>';
+            ideas.forEach((idea, i) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-4 bg-blue-50/50 rounded-2xl border border-blue-100";
+                div.innerHTML = `<div class="min-w-0 pr-4"><p class="text-sm font-bold text-blue-900 truncate">${idea.title}</p><a href="${idea.url}" target="_blank" class="text-xs text-blue-600 truncate block mt-1">${idea.url}</a></div><button onclick="window.handleDeleteIdea(${i})" class="text-slate-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        async function syncData(day) {
+            if (unsubIdeas) unsubIdeas();
+            const col = collection(db, 'artifacts', appId, 'public', 'data', 'ideas');
+            unsubIdeas = onSnapshot(col, (snap) => {
+                const container = document.getElementById('ideas-list');
+                const dayIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(i => i.day === day);
+                container.innerHTML = dayIdeas.length ? '' : '<p class="text-center text-slate-400 text-sm italic py-4">尚無分享點子</p>';
+                dayIdeas.forEach(idea => {
+                    const div = document.createElement('div');
+                    div.className = "flex items-center justify-between p-4 bg-blue-50/80 rounded-2xl border border-blue-100 shadow-sm";
+                    div.innerHTML = `<div class="min-w-0 pr-4"><p class="text-sm font-bold text-blue-900 truncate">${idea.title}</p><a href="${idea.url}" target="_blank" class="text-xs text-blue-600 truncate block mt-1 font-medium">${idea.url}</a></div><button onclick="window.handleDeleteIdea('${idea.id}')" class="text-slate-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                    container.appendChild(div);
+                });
+                lucide.createIcons();
+            });
+
+            if (unsubBookings) unsubBookings();
+            const bCol = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
+            unsubBookings = onSnapshot(bCol, (snap) => {
+                const container = document.getElementById('checklist-items');
+                const cloudData = {}; snap.docs.forEach(d => cloudData[d.id] = d.data().isDone);
+                const filtered = bookingItems.filter(i => i.day === day);
+                container.innerHTML = ''; let done = 0;
+                filtered.forEach(item => {
+                    const isDone = cloudData[item.id] || false; if (isDone) done++;
+                    const div = document.createElement('div');
+                    div.className = `check-card flex items-center gap-3 p-4 bg-white/80 border border-slate-100 rounded-2xl transition-all cursor-pointer shadow-sm ${isDone ? 'checked' : ''}`;
+                    div.onclick = () => window.handleToggleBooking(item.id, !isDone);
+                    div.innerHTML = `<i data-lucide="${isDone ? 'check-circle' : 'circle'}" class="w-5 h-5 ${isDone ? 'text-blue-600' : 'text-slate-300'}"></i> <div class="flex-1"><p class="text-sm font-bold text-blue-900">${item.label}</p></div>`;
+                    container.appendChild(div);
+                });
+                document.getElementById('progress-text').innerText = `${done}/${filtered.length}`;
+                lucide.createIcons();
+            });
         }
 
         window.handleAddIdea = async function() {
-            if (!db) return;
-            const title = document.getElementById('idea-title');
-            const url = document.getElementById('idea-url');
-            if (!title.value || !url.value) return;
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'ideas'), { day: currentActiveDay, title: title.value, url: url.value, createdAt: Date.now() });
-            title.value = ''; url.value = '';
-        }
+            const t = document.getElementById('idea-title'), u = document.getElementById('idea-url');
+            if (!t.value || !u.value) return;
+            if (db) await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'ideas'), { day: currentDay, title: t.value, url: u.value });
+            else { const all = JSON.parse(localStorage.getItem('ideas') || '{}'); all[currentDay] = all[currentDay] || []; all[currentDay].push({ title: t.value, url: u.value }); localStorage.setItem('ideas', JSON.stringify(all)); renderLocal(currentDay); }
+            t.value = ''; u.value = '';
+        };
 
         window.handleDeleteIdea = async function(id) {
-            if (!db) return;
-            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'ideas', id));
-        }
+            if (db) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'ideas', id));
+            else { const all = JSON.parse(localStorage.getItem('ideas') || '{}'); all[currentDay].splice(id, 1); localStorage.setItem('ideas', JSON.stringify(all)); renderLocal(currentDay); }
+        };
 
         window.handleToggleBooking = async function(id, status) {
-            if (!db) return;
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { isDone: status });
-        }
+            if (db) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { isDone: status });
+            else { const saved = JSON.parse(localStorage.getItem('bookings') || '{}'); saved[id] = status; localStorage.setItem('bookings', JSON.stringify(saved)); renderLocal(currentDay); }
+        };
 
-        window.scrollToChecklist = function() { document.getElementById('checklist-section').scrollIntoView({ behavior: 'smooth' }); }
-
-        // Start
         renderUI();
-        startFirebase();
+        try { const fApp = initializeApp(firebaseConfig); db = getFirestore(fApp); signInAnonymously(getAuth(fApp)).then(() => syncData(currentDay)); } catch (e) { renderLocal(currentDay); }
     </script>
 </body>
 </html>
