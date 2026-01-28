@@ -6,45 +6,6 @@
     <title>倫敦行 2025 | 團隊協作行程</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, addDoc, deleteDoc, updateDoc, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Global Firebase Configuration
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'london-trip-2025';
-
-        window.db = db;
-        window.appId = appId;
-        window.auth = auth;
-
-        // Auth Logic (Rule 3)
-        const initAuth = async () => {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Auth failed", error);
-            }
-        };
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                window.currentUser = user;
-                initApp();
-            } else {
-                initAuth();
-            }
-        });
-    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -146,13 +107,12 @@
     <main class="max-w-xl mx-auto p-5" id="itinerary-content"></main>
 
     <div class="fixed bottom-6 right-6 z-40">
-        <button onclick="scrollToChecklist()" class="w-14 h-14 bg-blue-800 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+        <button onclick="window.scrollToChecklist()" class="w-14 h-14 bg-blue-800 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
             <i data-lucide="list-checks"></i>
         </button>
     </div>
 
-    <section class="max-w-xl mx-auto p-5 pb-24 space-y-6">
-        <!-- 預約清單 -->
+    <section id="checklist-section" class="max-w-xl mx-auto p-5 pb-24 space-y-6">
         <div class="content-card p-8 min-h-[100px]">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-lg font-bold text-blue-900 flex items-center gap-2">
@@ -164,7 +124,6 @@
             <div id="no-bookings" class="hidden py-4 text-center text-slate-400 italic text-sm">今日無預約項目</div>
         </div>
 
-        <!-- 點子分享區 -->
         <div class="content-card p-8">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-lg font-bold text-blue-900 flex items-center gap-2">
@@ -176,7 +135,7 @@
                 <input type="text" id="idea-title" placeholder="標題 (如：想吃這家司康)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-all">
                 <div class="flex gap-2">
                     <input type="text" id="idea-url" placeholder="連結 (https://...)" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-all">
-                    <button onclick="handleAddIdea()" class="bg-blue-700 hover:bg-blue-600 text-white px-5 rounded-xl transition-all flex items-center justify-center shadow-lg">
+                    <button onclick="window.handleAddIdea()" class="bg-blue-700 hover:bg-blue-600 text-white px-5 rounded-xl transition-all flex items-center justify-center shadow-lg">
                         <i data-lucide="plus" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -184,9 +143,13 @@
         </div>
     </section>
 
+    <!-- Firebase SDK (含初始化邏輯) -->
     <script type="module">
-        import { doc, setDoc, deleteDoc, collection, onSnapshot, addDoc, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // 行程資料 (這部分是靜態的，應先渲染)
         const daysData = [
             { day: 1, title: "抵達與城市適應", tag: "Arrival", items: [
                 { time: "19:00", title: "Heathrow Airport", desc: "搭地鐵 Piccadilly Line 直達 King's Cross。", icon: "plane" },
@@ -198,7 +161,7 @@
                 { time: "14:30", title: "Greenwich Park", desc: "Ranger's House 前方的櫻花隧道是必拍機位。", icon: "flower" },
                 { time: "18:00", title: "The London Eye", desc: "俯瞰倫敦夜景。建議日落前一小時進場。", icon: "eye" }
             ]},
-            { day: 3, title: "劍橋學術之旅", tag: "Cambridge", items: [
+            { day: 3, title: "劍橋學學之旅", tag: "Cambridge", items: [
                 { time: "09:00", title: "King's Cross Station", desc: "火車前往劍橋。預購 Off-peak Return 可省預算。", icon: "train" },
                 { time: "11:00", title: "River Cam Punting", desc: "康河撐篙。建議聽導覽講徐志摩與校園故事。", icon: "waves" },
                 { time: "16:00", title: "Fitzbillies", desc: "必吃：百年傳承的 Chelsea Buns (肉桂捲)。", icon: "landmark" }
@@ -236,14 +199,12 @@
             { id: "stonehenge", day: 6, label: "巨石陣套票 (含巴士)", note: "確認 Waterloo 車次" }
         ];
 
-        let currentActiveDay = 1;
-        let unsubIdeas = null;
-        let unsubBookings = null;
+        let db, appId, currentActiveDay = 1, unsubIdeas, unsubBookings;
 
-        window.initApp = function() {
+        // 啟動 UI 渲染 (Rule: UI 應該優先顯示)
+        function renderUI() {
             const nav = document.getElementById('nav-container');
             const content = document.getElementById('itinerary-content');
-            
             nav.innerHTML = '';
             content.innerHTML = '';
 
@@ -252,7 +213,7 @@
                 btn.id = `btn-${day.day}`;
                 btn.className = `nav-item px-5 py-2.5 rounded-full text-sm font-bold bg-white/70 text-slate-600 border border-slate-200 backdrop-blur-md transition-all shadow-sm`;
                 btn.innerText = `D${day.day}`;
-                btn.onclick = () => switchDay(day.day);
+                btn.onclick = () => window.switchDay(day.day);
                 nav.appendChild(btn);
 
                 const section = document.createElement('section');
@@ -292,120 +253,122 @@
                 `;
                 content.appendChild(section);
             });
-
-            switchDay(1);
+            window.switchDay(1);
             lucide.createIcons();
+        }
+
+        // Firebase 初始化與登入
+        async function startFirebase() {
+            try {
+                // 如果在 GitHub Pages 上 __firebase_config 會是 undefined，這裡會噴錯
+                // 使用者需要將下方的內容替換為 Firebase 控制台提供的實際配置
+                const config = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+                    apiKey: "", // 這裡放妳的 API Key
+                    authDomain: "",
+                    projectId: "",
+                    storageBucket: "",
+                    messagingSenderId: "",
+                    appId: ""
+                };
+
+                const firebaseApp = initializeApp(config);
+                const auth = getAuth(firebaseApp);
+                db = getFirestore(firebaseApp);
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'london-trip-2025';
+
+                await signInAnonymously(auth);
+                onAuthStateChanged(auth, (user) => {
+                    if (user) syncCloudData(currentActiveDay);
+                });
+            } catch (e) {
+                console.warn("Cloud Sync Offline: Firebase Config Missing.", e);
+            }
+        }
+
+        async function syncCloudData(day) {
+            if (!db) return;
+            if (unsubIdeas) unsubIdeas();
+            if (unsubBookings) unsubBookings();
+
+            const ideasCol = collection(db, 'artifacts', appId, 'public', 'data', 'ideas');
+            unsubIdeas = onSnapshot(ideasCol, (snapshot) => {
+                const container = document.getElementById('ideas-list');
+                if (!container) return;
+                const dayIdeas = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(idea => idea.day === day);
+                container.innerHTML = dayIdeas.length === 0 ? '<div class="py-8 text-center bg-slate-50/50 backdrop-blur-sm rounded-2xl border border-dashed border-slate-200 text-slate-400 text-sm italic">尚無分享點子</div>' : '';
+                dayIdeas.forEach(idea => {
+                    const item = document.createElement('div');
+                    item.className = "flex items-center justify-between p-4 bg-blue-50/80 rounded-2xl border border-blue-100 shadow-sm backdrop-blur-sm";
+                    item.innerHTML = `
+                        <div class="flex-1 min-w-0 pr-4">
+                            <p class="text-sm font-bold text-blue-900 truncate">${idea.title}</p>
+                            <a href="${idea.url}" target="_blank" class="text-xs text-blue-600 hover:underline truncate block mt-1 font-medium">${idea.url}</a>
+                        </div>
+                        <button onclick="window.handleDeleteIdea('${idea.id}')" class="text-slate-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                    container.appendChild(item);
+                });
+                lucide.createIcons();
+            });
+
+            const bookingsCol = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
+            unsubBookings = onSnapshot(bookingsCol, (snapshot) => {
+                const container = document.getElementById('checklist-items');
+                if (!container) return;
+                const cloudData = {};
+                snapshot.docs.forEach(d => cloudData[d.id] = d.data().isDone);
+                const filtered = bookingItems.filter(item => item.day === day);
+                container.innerHTML = '';
+                let doneCount = 0;
+                filtered.forEach(item => {
+                    const isDone = cloudData[item.id] || false;
+                    if (isDone) doneCount++;
+                    const card = document.createElement('div');
+                    card.className = `check-card flex items-center gap-3 p-4 bg-white/80 border border-slate-100 rounded-2xl transition-all cursor-pointer shadow-sm ${isDone ? 'checked' : ''}`;
+                    card.onclick = () => window.handleToggleBooking(item.id, !isDone);
+                    card.innerHTML = `<i data-lucide="${isDone ? 'check-circle' : 'circle'}" class="w-5 h-5 ${isDone ? 'text-blue-600' : 'text-slate-300'}"></i> <div class="flex-1"><p class="text-sm font-bold text-blue-900">${item.label}</p><p class="text-[10px] text-slate-500">${item.note}</p></div>`;
+                    container.appendChild(card);
+                });
+                document.getElementById('progress-text').innerText = `${doneCount}/${filtered.length}`;
+                lucide.createIcons();
+            });
         }
 
         window.switchDay = function(n) {
             currentActiveDay = n;
             document.querySelectorAll('.day-content').forEach(d => d.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('nav-active'));
-            document.getElementById(`day-${n}`).classList.add('active');
+            const target = document.getElementById(`day-${n}`);
+            if (target) target.classList.add('active');
             const btn = document.getElementById(`btn-${n}`);
-            btn.classList.add('nav-active');
-            btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-            
+            if (btn) { btn.classList.add('nav-active'); btn.scrollIntoView({ behavior: 'smooth', inline: 'center' }); }
             syncCloudData(n);
-            window.scrollTo({ top: 120, behavior: 'smooth' });
-        }
-
-        async function syncCloudData(day) {
-            if (unsubIdeas) unsubIdeas();
-            if (unsubBookings) unsubBookings();
-
-            // Sync Ideas (Rule 1 & 2)
-            const ideasCol = collection(window.db, 'artifacts', window.appId, 'public', 'data', 'ideas');
-            unsubIdeas = onSnapshot(ideasCol, (snapshot) => {
-                const container = document.getElementById('ideas-list');
-                container.innerHTML = '';
-                const dayIdeas = snapshot.docs
-                    .map(d => ({ id: d.id, ...d.data() }))
-                    .filter(idea => idea.day === day);
-
-                if (dayIdeas.length === 0) {
-                    container.innerHTML = '<div class="py-8 text-center bg-slate-50/50 backdrop-blur-sm rounded-2xl border border-dashed border-slate-200 text-slate-400 text-sm italic">尚無分享點子</div>';
-                } else {
-                    dayIdeas.forEach((idea) => {
-                        const item = document.createElement('div');
-                        item.className = "flex items-center justify-between p-4 bg-blue-50/80 rounded-2xl border border-blue-100 shadow-sm backdrop-blur-sm";
-                        item.innerHTML = `
-                            <div class="flex-1 min-w-0 pr-4">
-                                <p class="text-sm font-bold text-blue-900 truncate">${idea.title}</p>
-                                <a href="${idea.url}" target="_blank" class="text-xs text-blue-600 hover:underline truncate block mt-1 font-medium">${idea.url}</a>
-                            </div>
-                            <button onclick="handleDeleteIdea('${idea.id}')" class="text-slate-300 hover:text-red-500 transition-colors">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        `;
-                        container.appendChild(item);
-                    });
-                    lucide.createIcons();
-                }
-            }, (error) => console.error("Sync Ideas error", error));
-
-            // Sync Bookings
-            const bookingsCol = collection(window.db, 'artifacts', window.appId, 'public', 'data', 'bookings');
-            unsubBookings = onSnapshot(bookingsCol, (snapshot) => {
-                const container = document.getElementById('checklist-items');
-                const noMsg = document.getElementById('no-bookings');
-                container.innerHTML = '';
-                
-                const cloudData = {};
-                snapshot.docs.forEach(d => cloudData[d.id] = d.data().isDone);
-
-                const filtered = bookingItems.filter(item => item.day === day);
-                if (filtered.length === 0) {
-                    noMsg.classList.remove('hidden');
-                    document.getElementById('progress-text').innerText = `0/0`;
-                } else {
-                    noMsg.classList.add('hidden');
-                    let doneCount = 0;
-                    filtered.forEach(item => {
-                        const isDone = cloudData[item.id] || false;
-                        if (isDone) doneCount++;
-                        const card = document.createElement('div');
-                        card.className = `check-card flex items-center gap-3 p-4 bg-white/80 border border-slate-100 rounded-2xl transition-all cursor-pointer shadow-sm ${isDone ? 'checked' : ''}`;
-                        card.onclick = () => handleToggleBooking(item.id, !isDone);
-                        card.innerHTML = `<i data-lucide="${isDone ? 'check-circle' : 'circle'}" class="w-5 h-5 ${isDone ? 'text-blue-600' : 'text-slate-300'}"></i> <div class="flex-1"><p class="text-sm font-bold text-blue-900">${item.label}</p><p class="text-[10px] text-slate-500">${item.note}</p></div>`;
-                        container.appendChild(card);
-                    });
-                    document.getElementById('progress-text').innerText = `${doneCount}/${filtered.length}`;
-                    lucide.createIcons();
-                }
-            });
+            window.scrollTo({ top: 100, behavior: 'smooth' });
         }
 
         window.handleAddIdea = async function() {
-            const titleInput = document.getElementById('idea-title');
-            const urlInput = document.getElementById('idea-url');
-            if (!titleInput.value || !urlInput.value) return;
-
-            const ideasCol = collection(window.db, 'artifacts', window.appId, 'public', 'data', 'ideas');
-            await addDoc(ideasCol, {
-                day: currentActiveDay,
-                title: titleInput.value,
-                url: urlInput.value,
-                createdAt: Date.now()
-            });
-
-            titleInput.value = '';
-            urlInput.value = '';
-        };
+            if (!db) return;
+            const title = document.getElementById('idea-title');
+            const url = document.getElementById('idea-url');
+            if (!title.value || !url.value) return;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'ideas'), { day: currentActiveDay, title: title.value, url: url.value, createdAt: Date.now() });
+            title.value = ''; url.value = '';
+        }
 
         window.handleDeleteIdea = async function(id) {
-            const ideaDoc = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'ideas', id);
-            await deleteDoc(ideaDoc);
-        };
+            if (!db) return;
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'ideas', id));
+        }
 
         window.handleToggleBooking = async function(id, status) {
-            const bookingDoc = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'bookings', id);
-            await setDoc(bookingDoc, { isDone: status });
-        };
-
-        window.scrollToChecklist = function() {
-            document.getElementById('checklist-section').scrollIntoView({ behavior: 'smooth' });
+            if (!db) return;
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { isDone: status });
         }
+
+        window.scrollToChecklist = function() { document.getElementById('checklist-section').scrollIntoView({ behavior: 'smooth' }); }
+
+        // Start
+        renderUI();
+        startFirebase();
     </script>
 </body>
 </html>
