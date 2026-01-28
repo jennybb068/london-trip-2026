@@ -91,6 +91,7 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // Firebase 配置資訊 (已根據截圖填寫)
         const firebaseConfig = {
             apiKey: "AIzaSyATImueC5mwGfTjCh1Bfoi2xA56FKhwE6E",
             authDomain: "londontrip-eb6ad.firebaseapp.com",
@@ -103,13 +104,13 @@
 
         const daysData = [
             { day: 1, title: "抵達與城市適應", items: [{ time: "19:00", title: "Heathrow Airport", desc: "地鐵直達 King's Cross。", icon: "plane" }, { time: "21:30", title: "Dishoom King's Cross", desc: "必點：招牌黑扁豆、炸秋葵、羊肉。", icon: "utensils" }]},
-            { day: 2, title: "格林威治櫻花大道", items: [{ time: "08:30", title: "Caravan King's Cross", desc: "必點：Baked Eggs (烤蛋)。", icon: "coffee" }, { time: "10:30", title: "Borough Market", desc: "必吃：甜甜圈、烤起司三明治。", icon: "shopping-bag" }, { time: "14:30", title: "Greenwich Park", desc: "櫻花隧道必拍機位。", icon: "flower" }]},
+            { day: 2, title: "格林威治櫻花大道", items: [{ time: "08:30", title: "Caravan King's Cross", desc: "必點：Baked Eggs (烤蛋)。", icon: "coffee" }, { time: "10:30", title: "Borough Market", desc: "必吃：甜甜圈、烤起司三明治。", icon: "shopping-bag" }, { time: "14:30", title: "Greenwich Park", desc: "櫻花隧道必拍機位。", icon: "flower" }, { time: "18:00", title: "The London Eye", desc: "俯瞰倫敦夜景。", icon: "eye" }]},
             { day: 3, title: "劍橋學術之旅", items: [{ time: "09:00", title: "King's Cross Station", desc: "火車前往劍橋。", icon: "train" }, { time: "11:00", title: "River Cam Punting", desc: "康河撐篙。", icon: "waves" }, { time: "16:00", title: "Fitzbillies", desc: "必吃：百年肉桂捲。", icon: "landmark" }]},
             { day: 4, title: "邱園與諾丁山", items: [{ time: "09:30", title: "Kew Gardens", desc: "溫帶植物室、Cherry Walk 櫻花步道。", icon: "flower-2" }, { time: "15:00", title: "Notting Hill", desc: "漫步波多貝羅市集。", icon: "camera" }]},
             { day: 5, title: "穹頂、歷史與博物館", items: [{ time: "10:00", title: "St Paul's Cathedral", desc: "聖保羅大教堂櫻花與圓頂。", icon: "church" }, { time: "14:00", title: "British Museum", desc: "大英博物館。", icon: "milestone" }]},
             { day: 6, title: "巨石陣神祕能量", items: [{ time: "14:00", title: "Stonehenge", desc: "史前巨石陣的神祕氛圍。", icon: "castle" }]},
             { day: 7, title: "皇家公園告別巡禮", items: [{ time: "10:00", title: "The Regent's Park", desc: "最後的粉紅告別。", icon: "wind" }, { time: "14:00", title: "Regent Street", desc: "Liberty 百貨、F&M 買茶葉。", icon: "shopping-bag" }]},
-            { day: 8, title: "知性終章與歸途", items: [{ time: "10:00", title: "British Library", desc: "參觀大憲章與達文西手稿。", icon: "book-open" }, { time: "14:00", title: "Heathrow Airport", desc: "歸途。", icon: "navigation" }]}
+            { day: 8, title: "知性終章與歸途", items: [{ time: "10:00", title: "British Library", desc: "參觀大憲章與達文西手稿。", icon: "book-open" }, { time: "14:00", title: "Heathrow Airport", desc: "帶著回憶歸途。", icon: "navigation" }]}
         ];
 
         const bookingItems = [
@@ -120,7 +121,7 @@
             { id: "stonehenge", day: 6, label: "巨石陣套票" }
         ];
 
-        let db, currentDay = 1, unsubIdeas, unsubBookings, appId = "londontrip-eb6ad";
+        let db = null, currentDay = 1, unsubIdeas, unsubBookings, appId = "londontrip-eb6ad";
 
         function showError(msg) {
             const toast = document.getElementById('error-toast');
@@ -132,6 +133,7 @@
         function renderUI() {
             const nav = document.getElementById('nav-container');
             const content = document.getElementById('itinerary-content');
+            nav.innerHTML = ''; content.innerHTML = '';
             daysData.forEach((day, idx) => {
                 const btn = document.createElement('button');
                 btn.className = `nav-item px-5 py-2 rounded-full text-sm font-bold bg-white/70 border border-slate-200 transition-all flex-shrink-0 shadow-sm`;
@@ -144,9 +146,9 @@
                 const itemsHtml = day.items.map(item => `
                     <div class="flex gap-4 mb-8">
                         <div class="w-10 h-10 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-blue-800 flex-shrink-0"><i data-lucide="${item.icon}" class="w-5 h-5"></i></div>
-                        <div class="flex-1 text-slate-900">
+                        <div class="flex-1">
                             <div class="flex justify-between items-start"><span class="text-[10px] font-black text-blue-700 uppercase">${item.time}</span></div>
-                            <h4 class="text-lg font-bold mt-1">${item.title}</h4><p class="text-sm text-slate-600 mt-1">${item.desc}</p>
+                            <h4 class="text-lg font-bold mt-1 text-slate-900">${item.title}</h4><p class="text-sm text-slate-600 mt-1">${item.desc}</p>
                         </div>
                     </div>`).join('');
                 section.innerHTML = `<h2 class="text-2xl font-bold text-blue-900 font-serif mb-4 px-2">Day ${day.day}: ${day.title}</h2><div class="content-card p-8 mb-6">${itemsHtml}</div>`;
@@ -160,13 +162,15 @@
             currentDay = n;
             document.querySelectorAll('.day-content').forEach(d => d.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('nav-active'));
-            document.getElementById(`day-${n}`).classList.add('active');
+            const target = document.getElementById(`day-${n}`);
+            if (target) target.classList.add('active');
             const btn = document.getElementById(`btn-${n}`);
             if (btn) {
                 btn.classList.add('nav-active');
                 btn.scrollIntoView({ behavior: 'smooth', inline: 'center' });
             }
             if (db) syncData(n); else renderLocal(n);
+            window.scrollTo({ top: 100, behavior: 'smooth' });
         };
 
         function renderLocal(day) {
@@ -176,7 +180,7 @@
             ideas.forEach((idea, i) => {
                 const div = document.createElement('div');
                 div.className = "flex items-center justify-between p-4 bg-blue-50/50 rounded-2xl border border-blue-100 shadow-sm";
-                div.innerHTML = `<div class="min-w-0 pr-4"><p class="text-sm font-bold text-blue-900 truncate">${idea.title}</p><a href="${idea.url}" target="_blank" class="text-xs text-blue-600 truncate block mt-1">${idea.url}</a></div><button onclick="window.handleDeleteIdea(${i})" class="text-slate-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                div.innerHTML = `<div class="min-w-0 pr-4 flex-1"><p class="text-sm font-bold text-blue-900 truncate">${idea.title}</p><a href="${idea.url}" target="_blank" class="text-xs text-blue-600 truncate block mt-1 hover:underline">${idea.url}</a></div><button onclick="window.handleDeleteIdea(${i})" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
                 container.appendChild(div);
             });
             
@@ -206,7 +210,7 @@
                 dayIdeas.forEach(idea => {
                     const div = document.createElement('div');
                     div.className = "flex items-center justify-between p-4 bg-blue-50/80 rounded-2xl border border-blue-100 shadow-sm";
-                    div.innerHTML = `<div class="min-w-0 pr-4"><p class="text-sm font-bold text-blue-900 truncate">${idea.title}</p><a href="${idea.url}" target="_blank" class="text-xs text-blue-600 truncate block mt-1 font-medium">${idea.url}</a></div><button onclick="window.handleDeleteIdea('${idea.id}')" class="text-slate-300 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                    div.innerHTML = `<div class="min-w-0 pr-4 flex-1"><p class="text-sm font-bold text-blue-900 truncate">${idea.title}</p><a href="${idea.url}" target="_blank" class="text-xs text-blue-600 truncate block mt-1 hover:underline font-medium">${idea.url}</a></div><button onclick="window.handleDeleteIdea('${idea.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
                     container.appendChild(div);
                 });
                 lucide.createIcons();
@@ -238,8 +242,7 @@
         window.handleAddIdea = async function() {
             const t = document.getElementById('idea-title'), u = document.getElementById('idea-url');
             if (!t.value || !u.value) return;
-            const btn = document.getElementById('add-btn');
-            btn.disabled = true;
+            const btn = document.getElementById('add-btn'); btn.disabled = true;
 
             try {
                 if (db) {
@@ -248,26 +251,22 @@
                     const all = JSON.parse(localStorage.getItem('ideas') || '{}'); all[currentDay] = all[currentDay] || []; all[currentDay].push({ title: t.value, url: u.value }); localStorage.setItem('ideas', JSON.stringify(all)); renderLocal(currentDay);
                 }
                 t.value = ''; u.value = '';
-            } catch (e) {
-                console.error("Save Error:", e);
-                showError("儲存失敗：權限不足。請檢查 Firebase Rules 是否已改為測試模式。");
-            } finally {
-                btn.disabled = false;
-            }
+            } catch (e) { showError("儲存失敗，請檢查權限與匿名登入開關。"); }
+            finally { btn.disabled = false; }
         };
 
-        window.handleDeleteIdea = async function(id) {
+        window.handleDeleteIdea = async function(idOrIdx) {
             try {
-                if (db) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'ideas', id));
-                else { const all = JSON.parse(localStorage.getItem('ideas') || '{}'); all[currentDay].splice(id, 1); localStorage.setItem('ideas', JSON.stringify(all)); renderLocal(currentDay); }
-            } catch (e) { showError("刪除失敗，權限不足。"); }
+                if (db) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'ideas', idOrIdx));
+                else { const all = JSON.parse(localStorage.getItem('ideas') || '{}'); all[currentDay].splice(idOrIdx, 1); localStorage.setItem('ideas', JSON.stringify(all)); renderLocal(currentDay); }
+            } catch (e) { showError("刪除失敗。"); }
         };
 
         window.handleToggleBooking = async function(id, status) {
             try {
                 if (db) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), { isDone: status });
                 else { const saved = JSON.parse(localStorage.getItem('bookings') || '{}'); saved[id] = status; localStorage.setItem('bookings', JSON.stringify(saved)); renderLocal(currentDay); }
-            } catch (e) { showError("更新失敗，權限不足。"); }
+            } catch (e) { showError("更新失敗。"); }
         };
 
         function updateStatusUI(isCloud) {
