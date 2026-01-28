@@ -27,6 +27,11 @@
         .nav-active { background: var(--accent-blue) !important; color: white !important; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2); }
         .content-card { background: rgba(255, 255, 255, 0.95); border-radius: 2rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); }
         .check-card.checked { opacity: 0.6; text-decoration: line-through; }
+        
+        /* 狀態標籤樣式 */
+        #sync-status { transition: all 0.3s ease; }
+        .status-cloud { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status-local { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
     </style>
 </head>
 <body class="pb-24">
@@ -34,6 +39,12 @@
     <header class="pt-12 pb-4 px-6 text-center">
         <p class="text-[10px] font-black tracking-[0.3em] text-blue-700 uppercase">2025 Spring Tour</p>
         <h1 class="text-4xl font-bold text-blue-900 mt-2 font-serif">倫敦行</h1>
+        <!-- 狀態顯示區域 -->
+        <div class="mt-3 flex justify-center">
+            <span id="sync-status" class="status-local text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                <i data-lucide="database" class="w-3 h-3"></i> 載入中...
+            </span>
+        </div>
     </header>
 
     <nav class="sticky top-0 z-50 py-4 glass shadow-sm px-4 mt-6">
@@ -59,7 +70,7 @@
                 <input type="text" id="idea-title" placeholder="標題 (如：這家司康看起來很讚)" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
                 <div class="flex gap-2">
                     <input type="text" id="idea-url" placeholder="貼上網址 https://..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
-                    <button onclick="window.handleAddIdea()" class="bg-blue-700 text-white px-5 rounded-xl"><i data-lucide="plus"></i></button>
+                    <button id="add-btn" onclick="window.handleAddIdea()" class="bg-blue-700 text-white px-5 rounded-xl transition-opacity shadow-md"><i data-lucide="plus"></i></button>
                 </div>
             </div>
         </div>
@@ -70,14 +81,15 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 已根據截圖填寫正確資訊
+        // Firebase 配置資訊
         const firebaseConfig = {
             apiKey: "AIzaSyATImueC5mwGfTjCh1Bfoi2xA56FKhwE6E",
             authDomain: "londontrip-eb6ad.firebaseapp.com",
             projectId: "londontrip-eb6ad",
             storageBucket: "londontrip-eb6ad.firebasestorage.app",
             messagingSenderId: "185447395076",
-            appId: "1:185447395076:web:c878b2dcbf3eb08df36a51"
+            appId: "1:185447395076:web:c878b2dcbf3eb08df36a51",
+            measurementId: "G-1L4WJGDDTD"
         };
 
         const daysData = [
@@ -99,14 +111,15 @@
             { id: "stonehenge", day: 6, label: "巨石陣套票" }
         ];
 
-        let db, currentDay = 1, unsubIdeas, unsubBookings, appId = "londontrip-eb6ad";
+        let db = null, currentDay = 1, unsubIdeas, unsubBookings, appId = "londontrip-eb6ad";
 
         function renderUI() {
             const nav = document.getElementById('nav-container');
             const content = document.getElementById('itinerary-content');
+            nav.innerHTML = ''; content.innerHTML = '';
             daysData.forEach((day, idx) => {
                 const btn = document.createElement('button');
-                btn.className = `nav-item px-5 py-2 rounded-full text-sm font-bold bg-white/70 border border-slate-200 transition-all flex-shrink-0`;
+                btn.className = `nav-item px-5 py-2 rounded-full text-sm font-bold bg-white/70 border border-slate-200 transition-all flex-shrink-0 shadow-sm`;
                 btn.id = `btn-${day.day}`; btn.innerText = `D${day.day}`;
                 btn.onclick = () => window.switchDay(day.day);
                 nav.appendChild(btn);
@@ -132,8 +145,13 @@
             currentDay = n;
             document.querySelectorAll('.day-content').forEach(d => d.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('nav-active'));
-            document.getElementById(`day-${n}`).classList.add('active');
-            document.getElementById(`btn-${n}`).classList.add('nav-active');
+            const target = document.getElementById(`day-${n}`);
+            const btn = document.getElementById(`btn-${n}`);
+            if (target) target.classList.add('active');
+            if (btn) {
+                btn.classList.add('nav-active');
+                btn.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            }
             if (db) syncData(n); else renderLocal(n);
         };
 
@@ -147,6 +165,20 @@
                 div.innerHTML = `<div class="min-w-0 pr-4"><p class="text-sm font-bold text-blue-900 truncate">${idea.title}</p><a href="${idea.url}" target="_blank" class="text-xs text-blue-600 truncate block mt-1">${idea.url}</a></div><button onclick="window.handleDeleteIdea(${i})" class="text-slate-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
                 container.appendChild(div);
             });
+
+            const bContainer = document.getElementById('checklist-items');
+            const savedBookings = JSON.parse(localStorage.getItem('bookings') || '{}');
+            const filtered = bookingItems.filter(i => i.day === day);
+            bContainer.innerHTML = ''; let done = 0;
+            filtered.forEach(item => {
+                const isDone = savedBookings[item.id] || false; if (isDone) done++;
+                const div = document.createElement('div');
+                div.className = `check-card flex items-center gap-3 p-4 bg-white/80 border border-slate-100 rounded-2xl transition-all cursor-pointer shadow-sm ${isDone ? 'checked' : ''}`;
+                div.onclick = () => window.handleToggleBooking(item.id, !isDone);
+                div.innerHTML = `<i data-lucide="${isDone ? 'check-circle' : 'circle'}" class="w-5 h-5 ${isDone ? 'text-blue-600' : 'text-slate-300'}"></i> <div class="flex-1"><p class="text-sm font-bold text-blue-900">${item.label}</p></div>`;
+                bContainer.appendChild(div);
+            });
+            document.getElementById('progress-text').innerText = `${done}/${filtered.length}`;
             lucide.createIcons();
         }
 
@@ -204,8 +236,46 @@
             else { const saved = JSON.parse(localStorage.getItem('bookings') || '{}'); saved[id] = status; localStorage.setItem('bookings', JSON.stringify(saved)); renderLocal(currentDay); }
         };
 
-        renderUI();
-        try { const fApp = initializeApp(firebaseConfig); db = getFirestore(fApp); signInAnonymously(getAuth(fApp)).then(() => syncData(currentDay)); } catch (e) { renderLocal(currentDay); }
+        window.scrollToChecklist = function() { document.getElementById('checklist-section').scrollIntoView({ behavior: 'smooth' }); };
+
+        function updateStatusUI(isCloud) {
+            const statusEl = document.getElementById('sync-status');
+            if (isCloud) {
+                statusEl.className = "status-cloud text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm";
+                statusEl.innerHTML = '<i data-lucide="cloud" class="w-3 h-3"></i> 雲端同步模式 (全體團員)';
+            } else {
+                statusEl.className = "status-local text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm";
+                statusEl.innerHTML = '<i data-lucide="database" class="w-3 h-3"></i> 本地模式 (僅限本裝置)';
+            }
+            lucide.createIcons();
+        }
+
+        async function startApp() {
+            renderUI();
+            try {
+                const fApp = initializeApp(firebaseConfig);
+                const auth = getAuth(fApp);
+                // 嘗試登入
+                await signInAnonymously(auth);
+                db = getFirestore(fApp);
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        updateStatusUI(true);
+                        syncData(currentDay);
+                    }
+                });
+            } catch (error) {
+                console.warn("Firebase Auth Error:", error.code);
+                updateStatusUI(false);
+                db = null;
+                renderLocal(currentDay);
+                if (error.code === 'auth/configuration-not-found') {
+                    console.error("請在 Firebase Console 開啟 'Anonymous' 驗證功能。");
+                }
+            }
+        }
+
+        startApp();
     </script>
 </body>
 </html>
